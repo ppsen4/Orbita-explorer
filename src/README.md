@@ -1,0 +1,1 @@
+Módulos do cliente: `App.tsx` organiza as telas e o estado da aplicação; `services/bodies.ts` consulta a API por `/api/bodies`; `services/observations.ts` contém as operações de Firestore; `firebase.ts` inicializa a conexão e autenticação anônima; `styles.css` contém o sistema visual responsivo.

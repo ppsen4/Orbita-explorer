@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function hasValidObservationFields() {
+      return request.resource.data.keys().hasAll([
+          'title', 'notes', 'bodyId', 'bodyName', 'bodyType', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'title', 'notes', 'bodyId', 'bodyName', 'bodyType', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.notes is string
+        && request.resource.data.notes.size() <= 500
+        && request.resource.data.bodyId is string
+        && request.resource.data.bodyId.size() <= 80
+        && request.resource.data.bodyName is string
+        && request.resource.data.bodyName.size() <= 120
+        && request.resource.data.bodyType is string
+        && request.resource.data.bodyType.size() <= 60;
+    }
+
+    match /users/{userId}/observations/{observationId} {
+      allow read, delete: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && hasValidObservationFields()
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isOwner(userId)
+        && hasValidObservationFields()
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+    }
+  }
+}
