@@ -29,15 +29,10 @@ jobs:
         with:
           version: 11.25.0
 
-      - name: Extract the uploaded source archive
-        run: unzip -q orbita-drop.zip -d app
-
       - name: Install dependencies
-        working-directory: app
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck and build for the GitHub Pages project path
-        working-directory: app
         env:
           VITE_SOLAR_API_BASE_URL: https://orbita-explorador.vercel.app
         run: |
@@ -47,7 +42,7 @@ jobs:
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: app/dist
+          path: dist
 
   deploy:
     environment:
